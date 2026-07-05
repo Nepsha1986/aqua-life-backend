@@ -18,8 +18,7 @@ export function create(input: CreateMerchantInput): Merchant {
 	const now = new Date().toISOString();
 	const merchant: Merchant = {
 		id: crypto.randomUUID(),
-		name: input.name,
-		email: input.email,
+		...input,
 		createdAt: now,
 		updatedAt: now,
 	};
