@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
+	merchantSchema,
 	createMerchantSchema,
 	updateMerchantSchema,
 } from './merchant.schema.ts';
@@ -31,4 +32,10 @@ test('updateMerchantSchema rejects empty object', () => {
 test('updateMerchantSchema accepts partial input', () => {
 	const result = updateMerchantSchema.safeParse({ email: 'b@acme.com' });
 	assert.equal(result.success, true);
+});
+
+test('schemas expose OpenAPI component ids', () => {
+	assert.equal(merchantSchema.meta()?.id, 'Merchant');
+	assert.equal(createMerchantSchema.meta()?.id, 'CreateMerchant');
+	assert.equal(updateMerchantSchema.meta()?.id, 'UpdateMerchant');
 });
