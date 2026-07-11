@@ -1,50 +1,57 @@
+import { eq } from 'drizzle-orm';
+import { db } from '../db/client.ts';
+import { merchants } from '../db/schema/merchants.ts';
 import type {
 	Merchant,
 	CreateMerchantInput,
 	UpdateMerchantInput,
 } from '../schemas/merchant.schema.ts';
 
-const merchants = new Map<string, Merchant>();
+type MerchantRow = typeof merchants.$inferSelect;
 
-export function list(): Merchant[] {
-	return [...merchants.values()];
-}
-
-export function findById(id: string): Merchant | undefined {
-	return merchants.get(id);
-}
-
-export function create(input: CreateMerchantInput): Merchant {
-	const now = new Date().toISOString();
-	const merchant: Merchant = {
-		id: crypto.randomUUID(),
-		...input,
-		createdAt: now,
-		updatedAt: now,
+function toMerchant(row: MerchantRow): Merchant {
+	return {
+		id: row.id,
+		name: row.name,
+		email: row.email,
+		createdAt: row.createdAt.toISOString(),
+		updatedAt: row.updatedAt.toISOString(),
 	};
-	merchants.set(merchant.id, merchant);
-	return merchant;
 }
 
-export function update(
+export async function list(): Promise<Merchant[]> {
+	const rows = await db.select().from(merchants).orderBy(merchants.createdAt);
+	return rows.map(toMerchant);
+}
+
+export async function findById(id: string): Promise<Merchant | undefined> {
+	const rows = await db.select().from(merchants).where(eq(merchants.id, id));
+	const row = rows[0];
+	return row ? toMerchant(row) : undefined;
+}
+
+export async function create(input: CreateMerchantInput): Promise<Merchant> {
+	const rows = await db.insert(merchants).values(input).returning();
+	return toMerchant(rows[0]!);
+}
+
+export async function update(
 	id: string,
 	input: UpdateMerchantInput,
-): Merchant | undefined {
-	const existing = merchants.get(id);
-	if (!existing) return undefined;
-	const updated: Merchant = {
-		...existing,
-		...input,
-		updatedAt: new Date().toISOString(),
-	};
-	merchants.set(id, updated);
-	return updated;
+): Promise<Merchant | undefined> {
+	const rows = await db
+		.update(merchants)
+		.set({ ...input, updatedAt: new Date() })
+		.where(eq(merchants.id, id))
+		.returning();
+	const row = rows[0];
+	return row ? toMerchant(row) : undefined;
 }
 
-export function remove(id: string): boolean {
-	return merchants.delete(id);
-}
-
-export function _reset(): void {
-	merchants.clear();
+export async function remove(id: string): Promise<boolean> {
+	const rows = await db
+		.delete(merchants)
+		.where(eq(merchants.id, id))
+		.returning({ id: merchants.id });
+	return rows.length > 0;
 }
