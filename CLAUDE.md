@@ -18,7 +18,7 @@ Backend for the Aguajoy ("aqua-life") project. Currently an early-stage scaffold
 
 ## Runtime & commands
 
-Requires **Node >= 22.6** (see `engines` / `.nvmrc`) — run `nvm use` before working. Node 22.12 strips types behind the `--experimental-strip-types` flag used in the dev script.
+Requires **Node >= 22.14** (see `engines` / `.nvmrc`) — run `nvm use` before working. The `zod-openapi` dependency sets this floor; Node strips types behind the `--experimental-strip-types` flag used in the dev script.
 
 - `npm run dev` — start the server on port 3000 with file watching (`node --watch --experimental-strip-types src/app.ts`).
 - `npx tsc --noEmit` — type-check.
