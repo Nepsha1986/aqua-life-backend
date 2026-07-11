@@ -151,19 +151,26 @@ git commit -m "chore: add Postgres via Docker Compose and DB dependencies"
 
 ## Task 2: Drizzle-схема, клиент подключения и конфиг миграций
 
+> **Адаптация после Task 1 (согласовано с пользователем):** схема живёт в
+> **папке** `src/db/schema/` (по файлу на таблицу), а не в одном `src/db/schema.ts`.
+> Пользователь уже создал `drizzle.config.ts` с глобом `./src/db/schema/*.ts` —
+> его НЕ пересоздаём, только дописываем загрузку `.env`. Клиент импортирует таблицу
+> напрямую из `./schema/merchants.ts` (барыль `index.ts` пока не заводим, чтобы глоб
+> `*.ts` не сканировал лишнего).
+
 **Files:**
-- Create: `src/db/schema.ts`
+- Create: `src/db/schema/merchants.ts`
 - Create: `src/db/client.ts`
-- Create: `drizzle.config.ts`
+- Modify: `drizzle.config.ts` (добавить загрузку `.env`)
 
 **Interfaces:**
 - Consumes: `DATABASE_URL` из окружения; пакеты из Task 1.
 - Produces:
-  - `merchants` — Drizzle pgTable (экспорт из `src/db/schema.ts`).
+  - `merchants` — Drizzle pgTable (экспорт из `src/db/schema/merchants.ts`).
   - `db` — экземпляр Drizzle (`typeof drizzle(...)`), экспорт из `src/db/client.ts`.
-  - `drizzle.config.ts` для drizzle-kit (`schema: ./src/db/schema.ts`, `out: ./drizzle`, `dialect: postgresql`).
+  - `drizzle.config.ts` для drizzle-kit (glob `./src/db/schema/*.ts`, `out: ./drizzle`, `dialect: postgresql`), с загрузкой `.env`.
 
-- [ ] **Step 1: Создать `src/db/schema.ts`**
+- [ ] **Step 1: Создать `src/db/schema/merchants.ts`**
 
 ```ts
 import { pgTable, uuid, text, timestamp } from 'drizzle-orm/pg-core';
@@ -183,10 +190,12 @@ export const merchants = pgTable('merchants', {
 
 - [ ] **Step 2: Создать `src/db/client.ts`**
 
+Импортирует таблицу напрямую из папки схемы (`./schema/merchants.ts`).
+
 ```ts
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
-import * as schema from './schema.ts';
+import * as schema from './schema/merchants.ts';
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
@@ -200,9 +209,12 @@ const pool = new Pool({ connectionString });
 export const db = drizzle(pool, { schema });
 ```
 
-- [ ] **Step 3: Создать `drizzle.config.ts`**
+- [ ] **Step 3: Дописать загрузку `.env` в существующий `drizzle.config.ts`**
 
-`process.loadEnvFile()` — нативная функция Node 22 (грузит `.env` из корня), чтобы drizzle-kit увидел `DATABASE_URL`. Обёрнута в try/catch на случай отсутствия файла в CI.
+Пользователь уже создал `drizzle.config.ts`. НЕ пересоздавать — только добавить
+загрузку `.env`, чтобы drizzle-kit увидел `DATABASE_URL`. `process.loadEnvFile()` —
+нативная функция Node 22 (грузит `.env` из корня); обёрнута в try/catch на случай
+отсутствия файла (CI). Итоговый файл:
 
 ```ts
 import { defineConfig } from 'drizzle-kit';
@@ -213,16 +225,19 @@ try {
 	// .env отсутствует — полагаемся на уже заданные переменные окружения
 }
 
-const url = process.env.DATABASE_URL;
-if (!url) {
-	throw new Error('DATABASE_URL is not set (нужен для drizzle-kit).');
+const databaseUrl = process.env.DATABASE_URL;
+
+if (!databaseUrl) {
+	throw new Error('DATABASE_URL is not set — check your .env file');
 }
 
 export default defineConfig({
-	schema: './src/db/schema.ts',
-	out: './drizzle',
 	dialect: 'postgresql',
-	dbCredentials: { url },
+	schema: './src/db/schema/*.ts',
+	out: './drizzle',
+	dbCredentials: {
+		url: databaseUrl,
+	},
 });
 ```
 
