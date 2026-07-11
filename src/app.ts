@@ -1,12 +1,13 @@
-import express, { type Express, type Request, type Response } from 'express';
+import express, { type Express } from 'express';
+import { merchantsRouter } from './routes/merchants.routes.ts';
+import { docsRouter } from './openapi/docs.routes.ts';
+import { errorHandler } from './middleware/error.ts';
 
-const app: Express = express();
-const PORT = 3000;
-
-app.get('/', (req: Request, res: Response) => {
-	res.send('Hello World!');
-});
-
-app.listen(PORT, () => {
-	console.log(`Server is running on http://localhost:${PORT}`);
-});
+export function createApp(): Express {
+	const app = express();
+	app.use(express.json());
+	app.use('/merchants', merchantsRouter);
+	app.use(docsRouter);
+	app.use(errorHandler);
+	return app;
+}

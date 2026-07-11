@@ -5,16 +5,19 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "dev": "node --watch --experimental-strip-types src/app.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "node --watch --experimental-strip-types src/server.ts",
+    "test": "node --experimental-strip-types --test \"src/**/*.test.ts\""
   },
   "author": "Alex Nepsha",
   "license": "ISC",
   "engines": {
-    "node": ">=22.6.0"
+    "node": ">=22.14.0"
   },
   "dependencies": {
-    "express": "^5.2.1"
+    "@scalar/express-api-reference": "^0.10.9",
+    "express": "^5.2.1",
+    "zod": "^4.4.3",
+    "zod-openapi": "^6.0.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
