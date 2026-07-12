@@ -6,8 +6,12 @@ import {
 	updateStore,
 	deleteStore,
 } from '../controllers/stores.controller.ts';
+import { requireAuth } from '../middleware/require-auth.ts';
 
 export const storesRouter = Router();
+
+// Every stores route requires a logged-in admin.
+storesRouter.use(requireAuth);
 
 storesRouter.post('/', createStore);
 storesRouter.get('/', listStores);
