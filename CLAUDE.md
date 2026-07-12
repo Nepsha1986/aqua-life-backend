@@ -23,7 +23,19 @@ Requires **Node >= 22.14** (see `engines` / `.nvmrc`) — run `nvm use` before w
 - `npm run dev` — start the server on port 3000 with file watching (`node --watch --experimental-strip-types src/app.ts`).
 - `npx tsc --noEmit` — type-check.
 
-No test or lint tooling is configured yet (`test` is a placeholder); wire new tooling into `package.json` scripts.
+No lint tooling is configured yet; wire new tooling into `package.json` scripts.
+
+## Testing
+
+**This repository intentionally has no tests for now.** A test suite and tooling
+will be added later, as a deliberate, separate effort. Until then:
+
+- **Do not write or add tests** (no `*.test.ts`, no test framework) unless the
+  user explicitly asks for them in a given task.
+- `npm test` is a deliberate no-op placeholder (it prints a notice and exits 0),
+  not a suite to run or "fix".
+- Verify changes with `npx tsc --noEmit` and, when it matters, by exercising the
+  running app manually (`npm run dev` + requests against `http://localhost:3000`).
 
 ## Registry
 
