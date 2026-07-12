@@ -8,6 +8,13 @@
       "when": 1783774481800,
       "tag": "0000_flowery_eddie_brock",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1783862399046,
+      "tag": "0001_tricky_gauntlet",
+      "breakpoints": true
     }
   ]
 }
