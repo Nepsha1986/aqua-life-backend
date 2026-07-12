@@ -29,3 +29,27 @@ test('GET /merchants/{id} documents 404', () => {
 	const get = openApiDocument.paths?.['/merchants/{id}']?.get;
 	assert.ok(get?.responses?.['404']);
 });
+
+test('document registers the Store component schema', () => {
+	assert.ok(openApiDocument.components?.schemas?.Store);
+});
+
+test('document exposes all store paths and methods', () => {
+	const paths = openApiDocument.paths ?? {};
+	assert.ok(paths['/stores']?.post, 'POST /stores');
+	assert.ok(paths['/stores']?.get, 'GET /stores');
+	assert.ok(paths['/stores/{id}']?.get, 'GET /stores/{id}');
+	assert.ok(paths['/stores/{id}']?.patch, 'PATCH /stores/{id}');
+	assert.ok(paths['/stores/{id}']?.delete, 'DELETE /stores/{id}');
+});
+
+test('POST /stores documents 201 and 400', () => {
+	const post = openApiDocument.paths?.['/stores']?.post;
+	assert.ok(post?.responses?.['201']);
+	assert.ok(post?.responses?.['400']);
+});
+
+test('GET /stores/{id} documents 404', () => {
+	const get = openApiDocument.paths?.['/stores/{id}']?.get;
+	assert.ok(get?.responses?.['404']);
+});

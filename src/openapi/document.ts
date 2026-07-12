@@ -1,5 +1,6 @@
 import { createDocument } from 'zod-openapi';
 import { merchantPaths } from './merchants.openapi.ts';
+import { storePaths } from './stores.openapi.ts';
 
 export const openApiDocument = createDocument({
 	openapi: '3.1.0',
@@ -9,6 +10,9 @@ export const openApiDocument = createDocument({
 		description: 'Backend API for the Aguajoy (aqua-life) project.',
 	},
 	servers: [{ url: 'http://localhost:3000', description: 'Local development' }],
-	tags: [{ name: 'Merchants', description: 'Merchant management' }],
-	paths: merchantPaths,
+	tags: [
+		{ name: 'Merchants', description: 'Merchant management' },
+		{ name: 'Stores', description: 'Aquarium shop directory' },
+	],
+	paths: { ...merchantPaths, ...storePaths },
 });
